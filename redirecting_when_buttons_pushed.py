@@ -1,23 +1,15 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
-class ContentWindow(QMainWindow):
-    def __init__(self, title, content):
+class ContentWidget(QWidget):
+    def __init__(self, content):
         super().__init__()
-        self.setWindowTitle(title)
-        self.setFixedSize(800, 600)
-
-        # Layout for the content window
-        layout = QVBoxLayout()
-        label = QLabel(content, self)
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label)
-
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
+        self.layout = QVBoxLayout()
+        self.label = QLabel(content, self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,69 +17,103 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
 
-        # Vertical menu bar
-        self.menu_layout = QVBoxLayout()
-        self.add_menu_button('ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
-        self.add_menu_button('CHAT', 'Chat Page', 'This is the chat page content.')
-        self.add_menu_button('ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
-        self.add_menu_button('ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.')
-        self.add_menu_button('ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
-        self.add_menu_button('ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
-        exit_button = QPushButton('ΕΞΟΔΟΣ')
-        exit_button.clicked.connect(self.close_application)
-        self.menu_layout.addWidget(exit_button)
-        self.menu_layout.addStretch()  # Add stretch to push menu items to the top
+        # Main layout
+        self.main_layout = QHBoxLayout()
 
-        # Create a widget to contain the menu
-        self.menu_widget = QWidget()
-        self.menu_widget.setLayout(self.menu_layout)
+        # Add the menu bar to the main layout
+        self.menu_widget = self.create_menu()
+        self.main_layout.addWidget(self.menu_widget)
 
-        # Set the menu widget's minimum width to cover 1/5 of the window
-        menu_width = self.frameGeometry().width() // 5
-        self.menu_widget.setMinimumWidth(menu_width)
-
-        # Set background color of menu widget to light green
-        self.menu_widget.setStyleSheet("background-color: #CDEAC0;")
-
-        # Content layout
-        content_layout = QVBoxLayout()
+        # Main content area
+        self.content_area = QWidget()
+        self.content_layout = QVBoxLayout()
 
         # Greeting message
-        greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
-        greeting_label.setAlignment(Qt.AlignCenter)
-        greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        content_layout.addWidget(greeting_label)
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
 
         # Two boxes at the bottom center
-        bottom_layout = QHBoxLayout()
-        box1 = QLineEdit(self)
-        box2 = QTextEdit(self)
-        box1.setMinimumSize(200, 50)
-        box2.setMinimumSize(200, 50)
-        bottom_layout.addWidget(box1)
-        bottom_layout.addWidget(box2)
-        content_layout.addLayout(bottom_layout)
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(1500, 800)
+        self.box2.setMinimumSize(1500, 800)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
 
-        # Combine menu and content layouts using QHBoxLayout
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.menu_widget)
-        main_layout.addLayout(content_layout)
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
 
         main_widget = QWidget()
-        main_widget.setLayout(main_layout)
+        main_widget.setLayout(self.main_layout)
         self.setCentralWidget(main_widget)
 
         # Set the fixed size of the window
-        self.setFixedSize(1200, 600)  # Adjust the width and height as needed
+        self.setFixedSize(1200, 600)
 
-    def add_menu_button(self, text, window_title, window_content):
+    def create_menu(self):
+        menu_layout = QVBoxLayout()
+        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
+        self.add_menu_button(menu_layout, 'CHAT', 'Chat Page', 'This is the chat page content.')
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
+        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.')
+        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
+        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
+
+        exit_button = QPushButton('ΕΞΟΔΟΣ')
+        exit_button.clicked.connect(self.close_application)
+        menu_layout.addWidget(exit_button)
+        menu_layout.addStretch()  # Add stretch to push menu items to the top
+
+        menu_widget = QWidget()
+        menu_widget.setLayout(menu_layout)
+        menu_widget.setStyleSheet("background-color: #CDEAC0;")
+        menu_widget.setMinimumWidth(self.frameGeometry().width() // 5)
+        return menu_widget
+
+    def add_menu_button(self, menu_layout, text, window_title, window_content):
         button = QPushButton(text, self)
-        button.clicked.connect(lambda: self.open_content_window(window_title, window_content))
-        self.menu_layout.addWidget(button)
+        if text == 'ΑΡΧΙΚΗ':
+            button.clicked.connect(self.show_home_page)
+        else:
+            button.clicked.connect(lambda: self.show_content(window_title, window_content))
+        menu_layout.addWidget(button)
 
-    def open_content_window(self, title, content):
-        self.content_window = ContentWindow(title, content)
-        self.content_window.show()
+    def show_home_page(self):
+        # Clear the current content
+        self.content_area.setParent(None)
+
+        # Recreate the main content area
+        self.content_area = QWidget()
+        self.content_layout = QVBoxLayout()
+
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
+
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(200, 50)
+        self.box2.setMinimumSize(200, 50)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
+
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_content(self, title, content):
+        # Clear the current content
+        self.content_area.setParent(None)
+
+        # Create new content area
+        self.content_area = ContentWidget(content)
+        self.main_layout.addWidget(self.content_area)
 
     def close_application(self):
         QApplication.instance().quit()
